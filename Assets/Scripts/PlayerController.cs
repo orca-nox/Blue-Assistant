@@ -10,7 +10,8 @@ public class PlayerController : MonoBehaviour {
     private PlayerControls controls;
     private Vector2 moveInput;
     private Vector2 lookInput;
-    private CharacterController characterController;
+    private CharacterController characterController; 
+    private Vector3 velocity; // For gravity
     private float pitch = 0f; // Tracks vertical camera rotation
 
     private void Awake() {
@@ -48,7 +49,16 @@ public class PlayerController : MonoBehaviour {
 
     private void Move() {
         Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
-        characterController.Move(move * moveSpeed * Time.deltaTime);
+
+        // Apply gravity
+        if (characterController.isGrounded && velocity.y < 0) {
+            velocity.y = -2f; // Reset velocity when grounded
+        }
+        velocity.y += Physics.gravity.y * Time.deltaTime;
+
+
+        // Apply movement
+        characterController.Move((move * moveSpeed + velocity) * Time.deltaTime);
     }
 
     private void LookAround() {
