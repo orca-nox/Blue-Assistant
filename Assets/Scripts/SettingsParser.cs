@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.IO;
+using TMPro;
 
 public class SettingsParser : MonoBehaviour {
     private string apiKey;
@@ -30,12 +31,15 @@ public class SettingsParser : MonoBehaviour {
                     switch (key) {
                         case "api_key":
                             apiKey = value;
+                            ChatGPTManager.Instance.apiKey = value;
                             break;
                         case "org_id":
                             orgId = value;
+                            ChatGPTManager.Instance.orgKey = value;
                             break;
                         case "model":
                             model = value;
+                            ChatGPTManager.Instance.chatGPTModel = value;
                             break;
                     }
                 }

@@ -45,11 +45,11 @@ public class ChatGPTManager : MonoBehaviour {
     public static ChatGPTManager Instance; 
 
     private void Awake() {
-        apiKey = settingsParser.GetApiKey();
-        orgKey = settingsParser.GetOrgId();
-        chatGPTModel = settingsParser.GetModel();
+        //apiKey = settingsParser.GetApiKey();
+        //orgKey = settingsParser.GetOrgId();
+        //chatGPTModel = settingsParser.GetModel();
 
-        openAI = new OpenAIApi(apiKey, orgKey);
+
         if (Instance != null && Instance != this) {
             Destroy(this);
         } else {
@@ -61,9 +61,11 @@ public class ChatGPTManager : MonoBehaviour {
         SetInitSystemPrompt();
         SetInitAssistantPrompt();
         SetInitUserPrompt();
+        
     }
 
     public async void RequestChatGPT(string userPrompt) {
+        openAI = new OpenAIApi(apiKey, orgKey);
         messages.Clear();
         ChatMessage newMessage = new ChatMessage();
 
