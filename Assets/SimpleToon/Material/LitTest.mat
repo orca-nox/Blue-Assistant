@@ -97,6 +97,7 @@ Material:
     m_Ints: []
     m_Floats:
     - Step1: 1
+    - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _Blend: 0

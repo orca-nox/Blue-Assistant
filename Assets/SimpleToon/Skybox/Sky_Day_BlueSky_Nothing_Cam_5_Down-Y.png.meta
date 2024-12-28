@@ -102,3 +102,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 243515
+  packageName: (URP)Simple Toon Shader
+  packageVersion: 1.1
+  assetPath: Assets/SimpleToon/Skybox/Sky_Day_BlueSky_Nothing_Cam_5_Down-Y.png
+  uploadId: 571225

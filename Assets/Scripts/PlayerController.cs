@@ -14,9 +14,11 @@ public class PlayerController : MonoBehaviour {
     private Vector3 velocity; // For gravity
     private float pitch = 0f; // Tracks vertical camera rotation
 
+
     private void Awake() {
         controls = new PlayerControls();
         characterController = GetComponent<CharacterController>();
+
     }
 
     private void OnEnable() {
@@ -43,8 +45,11 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void Update() {
-        Move();
-        LookAround();
+
+        if (!InputBoxManager.Instance.IsInputActive) {
+            Move();
+            LookAround();
+        }
     }
 
     private void Move() {

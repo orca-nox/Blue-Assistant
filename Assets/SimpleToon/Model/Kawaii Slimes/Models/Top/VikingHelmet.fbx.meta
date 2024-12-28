@@ -105,3 +105,10 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 243515
+  packageName: (URP)Simple Toon Shader
+  packageVersion: 1.1
+  assetPath: Assets/SimpleToon/Model/Kawaii Slimes/Models/Top/VikingHelmet.fbx
+  uploadId: 571225

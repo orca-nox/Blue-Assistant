@@ -2,34 +2,85 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using OpenAI;
+using TMPro;
+using System.IO;
+
+
+
 
 public class ChatGPTManager : MonoBehaviour {
     [SerializeField]
-    private string apiKey = "";
+    public string apiKey = "";
     [SerializeField]
-    private string orgKey = "";
+    public string orgKey = "";
     private OpenAIApi openAI = new OpenAIApi();
     //private OpenAIApi openAI = new OpenAIApi();
     private List<ChatMessage> messages = new List<ChatMessage>();
 
     [SerializeField]
-    private string chatGPTModel; //gpt-3.5-turbo, gpt-4, gpt-4-turbo
-    [SerializeField]
-    private bool debugMode = true;
+    public string chatGPTModel; //gpt-4o
 
-    [TextArea(15, 20)]
-    public string instructions;
-    public string pose;
-    public int accuracy;
+    [SerializeField]
+    private TextMeshProUGUI outputUI;
+
+    [SerializeField]
+    string systemPrompt;
+    [SerializeField]
+    string assistantPrompt;
+    [SerializeField]
+    string userPrompt;
+
+    [SerializeField] 
+    private PlanaOutputText planaOutput;
+
+    [SerializeField]
+    private PlanaController planaController;
+
+    [SerializeField]
+    SettingsParser settingsParser;
+
+    [SerializeField]
+    private GameObject planaLoading;
+
+    public static ChatGPTManager Instance; 
 
     private void Awake() {
+        apiKey = settingsParser.GetApiKey();
+        orgKey = settingsParser.GetOrgId();
+        chatGPTModel = settingsParser.GetModel();
+
         openAI = new OpenAIApi(apiKey, orgKey);
+        if (Instance != null && Instance != this) {
+            Destroy(this);
+        } else {
+            Instance = this;
+        }
     }
 
-    public async void RequestChatGPT(string newText) {
+    public void Start() {
+        SetInitSystemPrompt();
+        SetInitAssistantPrompt();
+        SetInitUserPrompt();
+    }
+
+    public async void RequestChatGPT(string userPrompt) {
+        messages.Clear();
         ChatMessage newMessage = new ChatMessage();
-        newMessage.Content = newText;
+
+        newMessage.Role = "system";
+        newMessage.Content = systemPrompt;
+
+        messages.Add(newMessage);
+
+        newMessage.Role = "assistant";
+        newMessage.Content = assistantPrompt;
+
+
+        messages.Add(newMessage);
+
         newMessage.Role = "user";
+        newMessage.Content = userPrompt;
+        assistantPrompt += "user: " + userPrompt + "\n";
 
         messages.Add(newMessage);
 
@@ -37,14 +88,22 @@ public class ChatGPTManager : MonoBehaviour {
         request.Messages = messages;
         request.Model = chatGPTModel;
 
+        Debug.Log("Sent request: " + userPrompt);
+
+        planaLoading.SetActive(true);
         var response = await openAI.CreateChatCompletion(request);
+
+        planaLoading.SetActive(false);
 
         if (response.Choices != null && response.Choices.Count > 0) {
             var chatResponse = response.Choices[0].Message;
-            messages.Add(chatResponse);
-            // GameManager.Instance.SetResultTextField(chatResponse.Content);
+            Debug.Log("Received: " + chatResponse.Content);
 
-            Debug.Log(chatResponse.Content);
+            assistantPrompt += "plana: " + chatResponse.Content + "\n";
+            messages.Add(chatResponse);
+
+            planaController.ProcessLLMResponse(chatResponse.Content);
+
         }
     }
 
@@ -52,21 +111,23 @@ public class ChatGPTManager : MonoBehaviour {
 
         string str = $"{instructions}";
 
-        //string str = $"{instructions} \n The pose is {pose}. \n The accuracy is {accuracy.ToString()}";
-
         return str;
 
     }
 
-    // Start is called before the first frame update
-    void Start() {
-
-        // Test
-        if (debugMode) RequestChatGPT(NewPrompt(instructions, pose, accuracy));
+    private void SetInitSystemPrompt() {
+        string path = Path.Combine(Application.streamingAssetsPath, "systemPrompt.txt");
+        systemPrompt = File.ReadAllText(path);
     }
 
-    // Update is called once per frame
-    void Update() {
+    private void SetInitAssistantPrompt() {
+        assistantPrompt = "";
+    }
+
+    private void SetInitUserPrompt() {
+        userPrompt = "";
 
     }
+
+
 }

@@ -7,3 +7,10 @@ MonoImporter:
   icon: {instanceID: 0}
   userData: 
   assetBundleName: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 243515
+  packageName: (URP)Simple Toon Shader
+  packageVersion: 1.1
+  assetPath: Assets/SimpleToon/Model/Kawaii Slimes/Cameras/Scripts/AbstractTargetFollower.cs
+  uploadId: 571225
