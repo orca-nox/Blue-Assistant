@@ -73,3 +73,5 @@ crashlytics-build.properties
 
 # API keys
 /StreamingAssets/apikey.txt
+/StreamingAssets/settings.txt
+Assets/StreamingAssets/settings.txt
