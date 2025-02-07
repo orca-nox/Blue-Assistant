@@ -10,79 +10,92 @@ public class PlayerController : MonoBehaviour {
     private PlayerControls controls;
     private Vector2 moveInput;
     private Vector2 lookInput;
-    private CharacterController characterController; 
-    private Vector3 velocity; // For gravity
-    private float pitch = 0f; // Tracks vertical camera rotation
+    private CharacterController characterController;
+    private Vector3 velocity;
+    private float pitch = 0f;
 
+    // Reference to your menu manager
+    private MenuManager menuManager;
 
     private void Awake() {
         controls = new PlayerControls();
         characterController = GetComponent<CharacterController>();
-
+        menuManager = FindFirstObjectByType<MenuManager>();
     }
 
     private void OnEnable() {
-        // Enable input action maps
         controls.Player.Enable();
         controls.Camera.Enable();
         controls.Interaction.Enable();
 
-        // Subscribe to input actions
         controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
-
         controls.Camera.Look.performed += ctx => lookInput = ctx.ReadValue<Vector2>();
         controls.Camera.Look.canceled += ctx => lookInput = Vector2.zero;
-
         controls.Interaction.Interact.performed += _ => Interact();
     }
 
     private void OnDisable() {
-        // Disable input action maps
         controls.Player.Disable();
         controls.Camera.Disable();
         controls.Interaction.Disable();
     }
 
     private void Update() {
-
-        if (!InputBoxManager.Instance.IsInputActive) {
+        // Check both InputBox and Menu states
+        if (!IsInputBlocked()) {
             Move();
             LookAround();
         }
     }
 
+    private bool IsInputBlocked() {
+        return InputBoxManager.Instance.IsInputActive ||
+               (menuManager != null && menuManager.IsMenuActive);
+    }
+
     private void Move() {
         Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
 
-        // Apply gravity
         if (characterController.isGrounded && velocity.y < 0) {
-            velocity.y = -2f; // Reset velocity when grounded
+            velocity.y = -2f;
         }
         velocity.y += Physics.gravity.y * Time.deltaTime;
 
-
-        // Apply movement
         characterController.Move((move * moveSpeed + velocity) * Time.deltaTime);
     }
 
     private void LookAround() {
-        // Horizontal rotation (player)
         transform.Rotate(Vector3.up, lookInput.x * lookSensitivity);
-
-        // Vertical rotation (camera)
-        pitch -= lookInput.y * lookSensitivity; // Decrease pitch for upward movement
-        pitch = Mathf.Clamp(pitch, -90f, 90f); // Limit pitch to -90 to 90 degrees
-
-        cameraTransform.localEulerAngles = new Vector3(pitch, 0f, 0f); // Apply pitch
+        pitch -= lookInput.y * lookSensitivity;
+        pitch = Mathf.Clamp(pitch, -90f, 90f);
+        cameraTransform.localEulerAngles = new Vector3(pitch, 0f, 0f);
     }
 
     private void Interact() {
-        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, raycastMaxDistance)) // Adjust ray distance as needed
-        {
-            Debug.Log($"Interacted with: {hit.collider.name}");
-            // Add custom interaction logic here
+        // Only allow interaction when input isn't blocked
+        if (!IsInputBlocked()) {
+            Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+            if (Physics.Raycast(ray, out RaycastHit hit, raycastMaxDistance)) {
+                Debug.Log($"Interacted with: {hit.collider.name}");
+            }
+        }
+    }
+
+    // Optional: Method to manually control input state
+    public void SetInputEnabled(bool enabled) {
+        if (enabled) {
+            controls.Player.Enable();
+            controls.Camera.Enable();
+            controls.Interaction.Enable();
+        } else {
+            controls.Player.Disable();
+            controls.Camera.Disable();
+            controls.Interaction.Disable();
+
+            // Reset inputs
+            moveInput = Vector2.zero;
+            lookInput = Vector2.zero;
         }
     }
 }

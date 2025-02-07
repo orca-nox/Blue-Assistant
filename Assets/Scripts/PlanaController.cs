@@ -37,6 +37,10 @@ public class PlanaController : MonoBehaviour {
     private const string WALL_ANIM = "WallAnim";
     private const string DEBRIS_ANIM = "DebrisAnim";
 
+    private void Start() {
+        TeleportToLocation(Location.Desk);
+    }
+
     public void ProcessLLMResponse(string response) {
         string[] words = response.Split(' ');
 
